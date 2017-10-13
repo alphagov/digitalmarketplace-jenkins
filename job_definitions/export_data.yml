@@ -31,6 +31,7 @@
 
           {% if environment == "production" %}
           /usr/local/bin/gdrive --config "/var/lib/jenkins/.gdrive" sync upload --delete-extraneous ./data "{{ jenkins_gdrive_csv_data_export_folder_id }}"
+          docker run --user $(id -u) --volume $(pwd)/data:/app/data digitalmarketplace/scripts scripts/upload-file-to-s3.py '{{ environment }}' data/opportunity-data.csv communications digital-outcomes-and-specialists-2/communications/data opportunity-data.csv
           {% endif %}
 
 {% endfor %}
