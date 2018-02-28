@@ -1,4 +1,13 @@
 ---
+- name: Add Oracle Java Repository
+  apt_repository: repo='ppa:webupd8team/java'
+
+- name: Accept Java 8 License
+  debconf: name='oracle-java8-installer' question='shared/accepted-oracle-license-v1-1' value='true' vtype='select'
+
+- name: Install Oracle Java 8
+  apt: name=oracle-java8-installer state=latest
+
 - name: Adding APT repository key
   tags: [apt]
   apt_key:
@@ -14,9 +23,9 @@
 
 - name: Install tools
   tags: [apt]
-  apt: update_cache=yes name={{ item }}
+  apt: update_cache=yes name={{ item }} state=installed
   with_items:
-    - git
+    - git=1:2.7.4-0ubuntu1.3
     - libpq-dev
     - python-dev
     - libyaml-dev
@@ -32,6 +41,8 @@
     - wkhtmltopdf
     - fonts-liberation
     - gnupg2
+    - make
+    - zlib1g-dev
 
 - name: Install rbenv and pyenv
   sudo: yes
@@ -126,5 +137,5 @@
 - name: Install AWS cli
   tags: [awscli]
   pip:
-    name: awscli
+    name: awscli-1.11.45
     state: present
