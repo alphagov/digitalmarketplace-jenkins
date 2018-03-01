@@ -1,12 +1,4 @@
 ---
-- name: Create Jenkins user group
-  group: gid=111 name=jenkins
-
-- name: Create Jenkins user
-  user: uid=106 name=jenkins group=jenkins createhome=no home=/var/lib/jenkins append=yes
-
-- include: volume.yml tags=volume
-
 - name: Add Jenkins apt repository key.
   apt_key:
     url: "{{ jenkins_repo_key_url }}"
@@ -20,42 +12,10 @@
     update_cache: yes
   tags: jenkins
 
-- name: Set Jenkins service boot config
-  template: src=jenkins_defaults.j2
-            dest=/etc/default/jenkins
-            backup=no
-  tags: config
-
 - name: Ensure latest release of Jenkins is installed.
   apt: pkg=jenkins state=latest update_cache=yes
   notify: restart jenkins
   tags: jenkins
-
-- name: Decrypt Github key for jenkins user
-  sudo: no
-  local_action: >
-    shell ${DM_CREDENTIALS_REPO}/sops-wrapper -d ${DM_CREDENTIALS_REPO}/github/github_com_and_enterprise.enc >
-    ${DM_CREDENTIALS_REPO}/github/github_com_and_enterprise &&
-    chmod 600 ${DM_CREDENTIALS_REPO}/github/github_com_and_enterprise
-  tags: config
-
-- name: Copy Github keys for jenkins user
-  copy: src={{ item.from }} dest=/var/lib/jenkins/.ssh/{{ item.to }} mode=600 owner=jenkins
-  tags: config
-  with_items:
-    - { from: "{{ github_com_and_enterprise_private_key }}", to: "github_com_and_enterprise" }
-
-- name: Remove decrypted Github key for jenkins user
-  sudo: no
-  local_action: shell rm ${DM_CREDENTIALS_REPO}/github/github_com_and_enterprise
-  tags: config
-
-- name: Setup Jenkins SSH directory
-  file: path=/var/lib/jenkins/.ssh state=directory owner=jenkins group=jenkins
-
-- name: Setup Jenkins SSH config
-  copy: src=jenkins_ssh_config dest=/var/lib/jenkins/.ssh/config owner=jenkins mode=600
-  tags: config
 
 - name: Ensure Jenkins is started and runs on startup.
   service: name=jenkins state=started enabled=yes
@@ -82,37 +42,6 @@
   retries: 5
   delay: 10
 
-- include: plugins.yml tags=plugins
-
-- name: Copy Jenkins config files
-  template: src=jenkins/{{ item }}.j2
-        dest=/data/jenkins/{{ item }}
-        backup=no
-        owner=jenkins
-        group=jenkins
-  notify: restart jenkins
-  with_items: jenkins_config_templates
-  tags: config
-
-- name: Create temp authorized_keys file with shared public ssh key
-  copy: src=/{{ lookup('env', 'DM_CREDENTIALS_REPO') }}/aws-keys/ci.pub dest=/home/ubuntu/.ssh/authorized_keys_temp mode=600 owner=ubuntu group=ubuntu
-  tags: config
-
-- name: Add dev's public ssh keys to temp authorized_keys file
-  shell: >
-    executable=/bin/bash
-    set -o pipefail &&
-    curl -s https://api.github.com/users/{{ item.name }}/keys |
-    jq -er '.[] | select(.id=={{ item.key_id }}) | .key' |
-    awk '{print $0 " {{ item.name }}"}' >>
-    /home/ubuntu/.ssh/authorized_keys_temp
-  with_items: jenkins_github_users
-  tags: config
-
-- name: Replace authorized_keys with temp authorized_keys
-  command: mv /home/ubuntu/.ssh/authorized_keys_temp /home/ubuntu/.ssh/authorized_keys
-  tags: config
-
 - include: letsencrypt.yml tags=letsencrypt
 - include: nginx.yml tags=nginx
 - include: jobs.yml tags=jobs
@@ -121,6 +50,8 @@
 - include: docker.yml tags=docker
 - include: paas.yml
   tags: [paas,cloudfoundry]
+- include: plugins.yml tags=plugins
+- include: config.yml tags=config
 
 - include: sops.yml
   tags: [sops]
