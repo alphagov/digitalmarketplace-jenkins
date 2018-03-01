@@ -1,4 +1,12 @@
 ---
+- name: Create Jenkins user group
+  group: name=jenkins
+
+- name: Create Jenkins user
+  user: name=jenkins groups=jenkins createhome=no home=/var/lib/jenkins append=yes
+
+- include: volume.yml tags=volume
+
 - name: Add Oracle Java Repository
   apt_repository: repo='ppa:webupd8team/java'
 
@@ -25,7 +33,7 @@
   tags: [apt]
   apt: update_cache=yes name={{ item }} state=installed
   with_items:
-    - git=1:2.7.4-0ubuntu1.3
+    - git
     - libpq-dev
     - python-dev
     - libyaml-dev
@@ -43,10 +51,12 @@
     - gnupg2
     - make
     - zlib1g-dev
+    - bzip2
+    - libsqlite3-dev
+    - libssl-dev
 
 - name: Install rbenv and pyenv
   sudo: yes
-  sudo_user: jenkins
   git: repo={{ item.repo }} dest=/var/lib/jenkins/{{ item.path }}
   with_items:
     - {repo: "https://github.com/sstephenson/rbenv.git", path: ".rbenv"}
@@ -59,8 +69,8 @@
   lineinfile:
     dest: /var/lib/jenkins/.bash_profile
     create: yes
-    regexp: 'export PATH="\$HOME/{{ item.path }}/bin'
-    line: 'export PATH="$HOME/{{ item.path }}/bin:$PATH" && export {{ item.env_var }}="$HOME/{{ item.path }}"'
+    regexp: 'export PATH="/var/lib/jenkins/{{ item.path }}/bin'
+    line: 'export PATH="/var/lib/jenkins/{{ item.path }}/bin:$PATH" && export {{ item.env_var }}="/var/lib/jenkins/{{ item.path }}"'
     owner: jenkins
     group: jenkins
   with_items:
@@ -79,10 +89,11 @@
     - {name: "pyenv"}
 
 - name: Install pyenv python
-  shell: "sudo su jenkins -c 'source $HOME/.bash_profile && pyenv install -s 2.7.9 && pyenv global 2.7.9 && $HOME/.pyenv/shims/pip install virtualenv'"
+  sudo: yes
+  shell: "bash -c 'source /var/lib/jenkins/.bash_profile && pyenv install -s 2.7.9 && pyenv global 2.7.9 && /var/lib/jenkins/.pyenv/shims/pip install virtualenv'"
 
 - name: Install pyenv python3
-  shell: "sudo su jenkins -c 'source $HOME/.bash_profile && pyenv install -s 3.6.2 && pyenv shell 3.6.2 && $HOME/.pyenv/shims/pip install virtualenv'"
+  shell: "bash -c 'source /var/lib/jenkins/.bash_profile && pyenv install -s 3.6.2 && pyenv shell 3.6.2 && /var/lib/jenkins/.pyenv/shims/pip install virtualenv'"
 
 - name: Add .aws config directory
   file: path=/var/lib/jenkins/.aws state=directory owner=jenkins group=jenkins
@@ -90,8 +101,11 @@
 - name: Add AWS credentials file
   template: src=aws_credentials.j2 dest=/var/lib/jenkins/.aws/credentials
 
+- name: Add gpg-agent conf directory
+  file: path=/var/lib/jenkins/.gnupg state=directory owner=jenkins group=jenkins
+
 - name: Add gpg-agent conf file
-  file: path=/var/lib/jenkins/.gnupg/gpg-agent.conf owner=jenkins group=jenkins
+  file: path=/var/lib/jenkins/.gnupg/gpg-agent.conf owner=jenkins group=jenkins state=touch
 
 - name: Kill gpg-agent
   command: gpgconf --kill gpg-agent
@@ -137,5 +151,13 @@
 - name: Install AWS cli
   tags: [awscli]
   pip:
-    name: awscli-1.11.45
+    name: awscli==1.11.45
     state: present
+
+- name: Give jenkins user permissions on its home directory
+  file:
+    path: /var/lib/jenkins
+    owner: jenkins
+    group: jenkins
+    state: directory
+    recurse: yes
