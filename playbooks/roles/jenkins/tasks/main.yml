@@ -24,6 +24,7 @@
   file: path=/data/jenkins/{{ item }} state=absent
   notify: restart jenkins
   with_items: jenkins_config_templates
+  tags: remove_config
 
 - name: Wait for Jenkins to start up before proceeding.
   shell: curl --head --silent http://{{ jenkins_hostname }}:8080/cli/
@@ -41,6 +42,7 @@
   until: "'OK' in jarfile_get.msg or 'file already exists' in jarfile_get.msg"
   retries: 5
   delay: 10
+  tags: jenkins
 
 - include: letsencrypt.yml tags=letsencrypt
 - include: nginx.yml tags=nginx
