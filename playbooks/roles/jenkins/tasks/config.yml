@@ -14,7 +14,7 @@
   tags: config
 
 - name: Decrypt Github key for jenkins user
-  sudo: no
+  become: no
   local_action: >
     shell ${DM_CREDENTIALS_REPO}/sops-wrapper -d ${DM_CREDENTIALS_REPO}/github/github_com_and_enterprise.enc >
     ${DM_CREDENTIALS_REPO}/github/github_com_and_enterprise &&
@@ -28,7 +28,7 @@
     - { from: "{{ github_com_and_enterprise_private_key }}", to: "github_com_and_enterprise" }
 
 - name: Remove decrypted Github key for jenkins user
-  sudo: no
+  become: no
   local_action: shell rm ${DM_CREDENTIALS_REPO}/github/github_com_and_enterprise
   tags: config
 

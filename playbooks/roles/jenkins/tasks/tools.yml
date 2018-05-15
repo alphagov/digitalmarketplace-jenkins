@@ -31,7 +31,7 @@
 
 - name: Install tools
   tags: [apt]
-  apt: update_cache=yes name={{ item }} state=installed
+  apt: update_cache=yes name={{ item }} state=present
   with_items:
     - git
     - libpq-dev
@@ -56,7 +56,7 @@
     - libssl-dev
 
 - name: Install rbenv and pyenv
-  sudo: yes
+  become: yes
   git: repo={{ item.repo }} dest=/var/lib/jenkins/{{ item.path }}
   with_items:
     - {repo: "https://github.com/sstephenson/rbenv.git", path: ".rbenv"}
@@ -89,7 +89,7 @@
     - {name: "pyenv"}
 
 - name: Install pyenv python
-  sudo: yes
+  become: yes
   shell: "bash -c 'source /var/lib/jenkins/.bash_profile && pyenv install -s 2.7.9 && pyenv global 2.7.9 && /var/lib/jenkins/.pyenv/shims/pip install virtualenv'"
 
 - name: Install pyenv python3
@@ -130,7 +130,7 @@
 
 - name: Install NodeJS
   tags: [apt]
-  apt: pkg=nodejs=4.* state=installed
+  apt: pkg=nodejs=4.* state=present
 
 # TODO: Stop installing PhantomJS like this when there is a better
 #       apt source available.

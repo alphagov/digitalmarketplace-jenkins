@@ -26,8 +26,8 @@
   git:
     repo: "git@github.com:alphagov/digitalmarketplace-credentials.git"
     dest: /var/lib/jenkins/digitalmarketplace-credentials
-  sudo: yes
-  sudo_user: jenkins
+  become: yes
+  become_user: jenkins
 
 - name: Remove deleted or renamed definitions
   synchronize:
