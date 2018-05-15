@@ -5,8 +5,6 @@
 - name: Create Jenkins user
   user: name=jenkins groups=jenkins createhome=no home=/var/lib/jenkins append=yes
 
-- include: volume.yml tags=volume
-
 - name: Add Oracle Java Repository
   apt_repository: repo='ppa:webupd8team/java'
 

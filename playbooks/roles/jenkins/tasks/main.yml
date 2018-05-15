@@ -44,16 +44,25 @@
   delay: 10
   tags: jenkins
 
-- include: letsencrypt.yml tags=letsencrypt
-- include: nginx.yml tags=nginx
-- include: jobs.yml tags=jobs
-- include: tools.yml tags=tools
-- include: gdrive.yml tags=gdrive
-- include: docker.yml tags=docker
-- include: paas.yml
+- import_tasks: letsencrypt.yml
+  tags: [letsencrypt]
+- import_tasks: nginx.yml
+  tags: [nginx]
+- import_tasks: jobs.yml
+  tags: [jobs]
+- import_tasks: volume.yml
+  tags: [volume]
+- import_tasks: tools.yml
+  tags: [tools]
+- import_tasks: gdrive.yml
+  tags: [gdrive]
+- import_tasks: docker.yml
+  tags: [docker]
+- import_tasks: paas.yml
   tags: [paas,cloudfoundry]
-- include: plugins.yml tags=plugins
-- include: config.yml tags=config
-
-- include: sops.yml
+- import_tasks: plugins.yml
+  tags: [plugins]
+- import_tasks: config.yml
+  tags: [config]
+- import_tasks: sops.yml
   tags: [sops]
