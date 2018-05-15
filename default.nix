@@ -3,7 +3,7 @@ let
   # specifying args defaults in this slightly non-standard way to allow us to include the default values in `args`
   args = rec {
     pkgs = import <nixpkgs> {};
-    pythonPackages = pkgs.python27Packages;
+    pythonPackages = pkgs.python36Packages;
     localOverridesPath = ./local.nix;
   } // argsOuter;
 in (with args; {

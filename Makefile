@@ -16,7 +16,7 @@ requirements: venv ## Install requirements
 venv: ${VIRTUALENV_ROOT}/activate ## Create virtualenv if it does not exist
 
 ${VIRTUALENV_ROOT}/activate:
-	@[ -z "${VIRTUAL_ENV}" ] && [ ! -d venv ] && virtualenv venv || true
+	[ -z $$VIRTUAL_ENV ] && [ ! -d venv ] && virtualenv -p python3 venv || true
 
 .PHONY: clean
 clean: ## Clean workspace (delete all generated files)
@@ -27,6 +27,5 @@ jenkins: venv ## Run Jenkins playbook
 	$(if ${TAGS},,$(error Must specify a list of ansible tags in TAGS))
 	ANSIBLE_CONFIG=playbooks/ansible.cfg ${VIRTUALENV_ROOT}/bin/ansible-playbook \
 		-i playbooks/hosts playbooks/jenkins_playbook.yml \
-		--private-key /Users/christopherwynne/.ssh/jenkins2_2 \
-		-e @<(${DM_CREDENTIALS_REPO}/sops-wrapper -d ${DM_CREDENTIALS_REPO}/jenkins-vars/jenkins2.yaml) \
+		-e @<(${DM_CREDENTIALS_REPO}/sops-wrapper -d ${DM_CREDENTIALS_REPO}/jenkins-vars/jenkins.yaml) \
 		--tags "${TAGS}" -e "jobs=${JOBS}"
