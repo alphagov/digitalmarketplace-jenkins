@@ -25,6 +25,7 @@ clean: ## Clean workspace (delete all generated files)
 .PHONY: jenkins
 jenkins: venv ## Run Jenkins playbook
 	$(if ${TAGS},,$(error Must specify a list of ansible tags in TAGS))
+	@${DM_CREDENTIALS_REPO}/sops-wrapper -v > /dev/null
 	ANSIBLE_CONFIG=playbooks/ansible.cfg ${VIRTUALENV_ROOT}/bin/ansible-playbook \
 		-i playbooks/hosts playbooks/jenkins_playbook.yml \
 		-e <(${DM_CREDENTIALS_REPO}/sops-wrapper -d ${DM_CREDENTIALS_REPO}/jenkins-vars/jenkins.yaml) \
