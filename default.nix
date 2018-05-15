@@ -21,7 +21,7 @@ in (with args; {
       pkgs.cacert
       # because we *actually* also depend on the credentials repo
       pkgs.sops
-      pkgs.aws-auth
+      ((import ./aws-auth.nix) (with pkgs; { inherit stdenv fetchFromGitHub makeWrapper jq awscli openssl; }))
     ];
 
     hardeningDisable = pkgs.stdenv.lib.optionals pkgs.stdenv.isDarwin [ "format" ];
