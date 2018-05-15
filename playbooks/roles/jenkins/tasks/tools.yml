@@ -1,10 +1,4 @@
 ---
-- name: Create Jenkins user group
-  group: name=jenkins
-
-- name: Create Jenkins user
-  user: name=jenkins groups=jenkins createhome=no home=/var/lib/jenkins append=yes
-
 - name: Add Oracle Java Repository
   apt_repository: repo='ppa:webupd8team/java'
 

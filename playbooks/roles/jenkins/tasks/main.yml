@@ -44,16 +44,16 @@
   delay: 10
   tags: jenkins
 
+- import_tasks: bootstrap.yml
+  tags: [bootstrap]
+- import_tasks: tools.yml
+  tags: [tools]
 - import_tasks: letsencrypt.yml
   tags: [letsencrypt]
 - import_tasks: nginx.yml
   tags: [nginx]
 - import_tasks: jobs.yml
   tags: [jobs]
-- import_tasks: volume.yml
-  tags: [volume]
-- import_tasks: tools.yml
-  tags: [tools]
 - import_tasks: gdrive.yml
   tags: [gdrive]
 - import_tasks: docker.yml

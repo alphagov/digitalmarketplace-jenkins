@@ -1,4 +1,10 @@
 ---
+- name: Create Jenkins user group
+  group: name=jenkins
+
+- name: Create Jenkins user
+  user: name=jenkins groups=jenkins createhome=no home=/var/lib/jenkins append=yes
+
 - name: Format EBS volume
   filesystem: fstype=ext4 dev=/dev/xvdf
 
