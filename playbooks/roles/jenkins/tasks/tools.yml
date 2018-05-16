@@ -46,18 +46,17 @@
     - bzip2
     - libsqlite3-dev
     - libssl-dev
+    - python3-pip
 
-- name: Install rbenv and pyenv
+- name: Install rbenv
   become: yes
   git: repo={{ item.repo }} dest=/var/lib/jenkins/{{ item.path }}
   with_items:
     - {repo: "https://github.com/sstephenson/rbenv.git", path: ".rbenv"}
     - {repo: "https://github.com/sstephenson/ruby-build.git", path: ".rbenv/plugins/ruby-build"}
     - {repo: "https://github.com/carsomyr/rbenv-bundler.git", path: ".rbenv/plugins/bundler"}
-    - {repo: "https://github.com/yyuu/pyenv.git", path: ".pyenv"}
-    - {repo: "https://github.com/yyuu/pyenv-virtualenv.git", path: ".pyenv/plugins/pyenv-virtualenv"}
 
-- name: Add .rbenv and .pyenv to PATH
+- name: Add .rbenv to PATH
   lineinfile:
     dest: /var/lib/jenkins/.bash_profile
     create: yes
@@ -67,9 +66,8 @@
     group: jenkins
   with_items:
     - {path: ".rbenv", env_var: "RBENV_ROOT"}
-    - {path: ".pyenv", env_var: "PYENV_ROOT"}
 
-- name: Add rbenv and pyenv init
+- name: Add rbenv init
   lineinfile:
     dest: /var/lib/jenkins/.bash_profile
     regexp: '{{ item.name }} init'
@@ -78,14 +76,6 @@
     group: jenkins
   with_items:
     - {name: "rbenv"}
-    - {name: "pyenv"}
-
-- name: Install pyenv python
-  become: yes
-  shell: "bash -c 'source /var/lib/jenkins/.bash_profile && pyenv install -s 2.7.9 && pyenv global 2.7.9 && /var/lib/jenkins/.pyenv/shims/pip install virtualenv'"
-
-- name: Install pyenv python3
-  shell: "bash -c 'source /var/lib/jenkins/.bash_profile && pyenv install -s 3.6.2 && pyenv shell 3.6.2 && /var/lib/jenkins/.pyenv/shims/pip install virtualenv'"
 
 - name: Add .aws config directory
   file: path=/var/lib/jenkins/.aws state=directory owner=jenkins group=jenkins
