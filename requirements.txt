@@ -1,1 +1,1 @@
-ansible==2.5.2
+git+git@github.com:alphagov/ansible.giti@40383-allow-non-file-buffer-input#egg=ansible
