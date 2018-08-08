@@ -6,8 +6,7 @@
     concurrent: false
     triggers:
       - pollscm: "* * * * *"
-    pipeline:
-      script: |
+    dsl: |
 
         def tag_release(tag) {
           try {
