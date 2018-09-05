@@ -3,25 +3,7 @@
     name: "index-briefs-{{ environment }}"
     display-name: "Index briefs - {{ environment }}"
     project-type: freestyle
-    description: "This imports all briefs (opportunities) in the current API database into the current Elasticsearch index."
-    parameters:
-      - string:
-          name: INDEX
-          default: {{ search_config['briefs'][environment].default_index }}
-          description: "Index name or alias to use (eg 'briefs-digital-outcomes-and-specialists')"
-      - string:
-          name: FRAMEWORKS
-          default: {{ search_config['briefs'][environment].frameworks }}
-          description: >
-            Comma-separated list of framework slugs that should be indexed
-            (eg 'digital-outcomes-and-specialists,digital-outcomes-and-specialists-2').
-      - string:
-          name: CREATE_WITH_MAPPING
-          description: >
-            Create the named index using mapping <mapping>. There's no default here, as
-            creating indexes should be done under user control on the Production environment.
-            This mapping is a filename (without .json suffix) as would be found by the
-            search-api in its digitalmarketplace-search-api/mappings directory.
+    description: "Update the {{ environment }} briefs index with briefs in the {{ environment }} database."
     triggers:
       - timed: "H 3 * * *"
     publishers:
@@ -38,5 +20,5 @@
               CHANNEL=#dm-release
     builders:
       - shell: |
-          docker run -e DM_DATA_API_TOKEN_{{ environment|upper }} -e DM_SEARCH_API_TOKEN_{{ environment|upper }} digitalmarketplace/scripts scripts/index-to-search-service.py briefs '{{ environment }}' --serial --index="${INDEX}" --frameworks="${FRAMEWORKS}" --create-with-mapping="${CREATE_WITH_MAPPING}"
+          docker run -e DM_DATA_API_TOKEN_{{ environment|upper }} -e DM_SEARCH_API_TOKEN_{{ environment|upper }} digitalmarketplace/scripts scripts/index-to-search-service.py briefs '{{ environment }}' --serial --index="{{ search_config['briefs'].default_index }}" --frameworks="{{ search_config['briefs'].frameworks }}"
 {% endfor %}

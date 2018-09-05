@@ -101,36 +101,40 @@
                 }
               }
 
-              withEnv(["INDEX_NAME={{ search_config['services'][environment].default_index }}-${new java.text.SimpleDateFormat('yyyy-MM-dd').format(new Date())}"]){
+              withEnv(["INDEX_NAME={{ search_config['services'].default_index }}-${new java.text.SimpleDateFormat('yyyy-MM-dd').format(new Date())}"]){
                 stage('Index target stage'){
-                  build job: "index-services-{{ environment }}",
+                  build job: "create-index-{{ environment }}",
                   parameters: [
-                    string(name: 'INDEX', value: "${INDEX_NAME}"),
-                    string(name: 'CREATE_WITH_MAPPING', value: "{{ search_config['services'][environment].default_mapping_name }}"),
+                    string(name: 'OBJECTS', value: "services"),
+                    string(name: 'INDEX_NAME', value: "${INDEX_NAME}"),
+                    string(name: 'FRAMEWORKS', value: "{{ search_config['services'].frameworks }}"),
+                    string(name: 'MAPPING', value: "{{ search_config['services'].default_mapping_name }}"),
                   ]
                 }
                 stage('Update index alias'){
                   build job: "update-index-alias-{{ environment }}",
                   parameters: [
-                    string(name: 'ALIAS', value: "{{ search_config['services'][environment].default_index }}"),
+                    string(name: 'ALIAS', value: "{{ search_config['services'].default_index }}"),
                     string(name: 'TARGET', value: "${INDEX_NAME}"),
                     string(name: 'DELETE_OLD_INDEX', value: 'yes')
                   ]
                 }
               }
 
-              withEnv(["INDEX_NAME={{ search_config['briefs'][environment].default_index }}-${new java.text.SimpleDateFormat('yyyy-MM-dd').format(new Date())}"]){
+              withEnv(["INDEX_NAME={{ search_config['briefs'].default_index }}-${new java.text.SimpleDateFormat('yyyy-MM-dd').format(new Date())}"]){
                 stage('Index target stage'){
-                  build job: "index-briefs-{{ environment }}",
+                  build job: "create-index-{{ environment }}",
                   parameters: [
-                    string(name: 'INDEX', value: "${INDEX_NAME}"),
-                    string(name: 'CREATE_WITH_MAPPING', value: "{{ search_config['briefs'][environment].default_mapping_name }}"),
+                    string(name: 'OBJECTS', value: "briefs"),
+                    string(name: 'INDEX_NAME', value: "${INDEX_NAME}"),
+                    string(name: 'FRAMEWORKS', value: "{{ search_config['briefs'].frameworks }}"),
+                    string(name: 'MAPPING', value: "{{ search_config['briefs'].default_mapping_name }}"),
                   ]
                 }
                 stage('Update index alias'){
                   build job: "update-index-alias-{{ environment }}",
                   parameters: [
-                    string(name: 'ALIAS', value: "{{ search_config['briefs'][environment].default_index }}"),
+                    string(name: 'ALIAS', value: "{{ search_config['briefs'].default_index }}"),
                     string(name: 'TARGET', value: "${INDEX_NAME}"),
                     string(name: 'DELETE_OLD_INDEX', value: 'yes')
                   ]

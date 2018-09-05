@@ -3,23 +3,7 @@
     name: "index-services-{{ environment }}"
     display-name: "Index services - {{ environment }}"
     project-type: freestyle
-    description: "This imports all services in the current API database into the current Elasticsearch index."
-    parameters:
-      - string:
-          name: INDEX
-          default: {{ search_config['services'][environment].default_index }}
-          description: "Index name or alias to use (eg 'g-cloud-9-2017-05-22')"
-      - string:
-          name: FRAMEWORKS
-          default: {{ search_config['services'][environment].frameworks }}
-          description: "Comma-separated list of framework slugs that should be indexed (eg 'g-cloud-7,g-cloud-8'). If no frameworks are specified then all currently published services will be indexed."
-      - string:
-          name: CREATE_WITH_MAPPING
-          description: >
-            Create the named index using mapping <mapping>. There's no default here, as
-            creating indexes should be done under user control on the Production environment.
-            This mapping is a filename (without .json suffix) as would be found by the
-            search-api in its digitalmarketplace-search-api/mappings directory.
+    description: "Update the {{ environment }} services index with services in the {{ environment }} database."
     triggers:
       - timed: "H 2 * * *"
     publishers:
@@ -36,5 +20,5 @@
               CHANNEL=#dm-release
     builders:
       - shell: |
-          docker run -e DM_DATA_API_TOKEN_{{ environment|upper }} -e DM_SEARCH_API_TOKEN_{{ environment|upper }} digitalmarketplace/scripts scripts/index-to-search-service.py services '{{ environment }}' --serial --index="${INDEX}" --frameworks="${FRAMEWORKS}" --create-with-mapping="${CREATE_WITH_MAPPING}"
+          docker run -e DM_DATA_API_TOKEN_{{ environment|upper }} -e DM_SEARCH_API_TOKEN_{{ environment|upper }} digitalmarketplace/scripts scripts/index-to-search-service.py services '{{ environment }}' --serial --index="{{ search_config['services'].default_index }}" --frameworks="{{ search_config['services'].frameworks }}"
 {% endfor %}
