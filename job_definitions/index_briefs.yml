@@ -25,4 +25,7 @@
             OBJECTS=briefs
             INDEX={{ search_config['briefs'].default_index }}
             FRAMEWORKS={{ search_config['briefs'].frameworks }}
+
+      - shell: |
+          docker run -e DM_DATA_API_TOKEN_{{ environment|upper }} -e DM_SEARCH_API_TOKEN_{{ environment|upper }} digitalmarketplace/scripts scripts/index-to-search-service.py briefs '{{ environment }}' --serial --index="{{ search_config['briefs'].default_index }}" --frameworks="{{ search_config['briefs'].frameworks }}"
 {% endfor %}
