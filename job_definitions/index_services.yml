@@ -1,6 +1,6 @@
 {% for environment in ['preview', 'staging', 'production'] %}
 - job:
-    name: "index-services-{{ environment }}"
+    name: "update-services-index-{{ environment }}"
     display-name: "Index services - {{ environment }}"
     project-type: freestyle
     description: "Update the {{ environment }} services index with services in the {{ environment }} database."
@@ -19,6 +19,10 @@
               URL=<${BUILD_URL}consoleFull|#${BUILD_NUMBER}>
               CHANNEL=#dm-release
     builders:
-      - shell: |
-          docker run -e DM_DATA_API_TOKEN_{{ environment|upper }} -e DM_SEARCH_API_TOKEN_{{ environment|upper }} digitalmarketplace/scripts scripts/index-to-search-service.py services '{{ environment }}' --serial --index="{{ search_config['services'].default_index }}" --frameworks="{{ search_config['services'].frameworks }}"
+      - trigger-builds:
+        - project: update-index-{{ environment }}
+          predefined-parameters: |
+            OBJECTS=services
+            INDEX={{ search_config['services'].default_index }}
+            FRAMEWORKS={{ search_config['services'].frameworks }}
 {% endfor %}

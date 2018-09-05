@@ -213,4 +213,4 @@ search_config:
   services:
     default_index: g-cloud-10
     frameworks: g-cloud-10
-    default_mapping_name: services
+    default_mapping_name: services-g-cloud-10
