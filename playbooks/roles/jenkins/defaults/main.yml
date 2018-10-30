@@ -207,10 +207,28 @@ app_urls:
 
 search_config:
   briefs:
-    default_index: briefs-digital-outcomes-and-specialists
-    frameworks: digital-outcomes-and-specialists,digital-outcomes-and-specialists-2,digital-outcomes-and-specialists-3
-    default_mapping_name: briefs-digital-outcomes-and-specialists-2
+    preview:
+      default_index: briefs-digital-outcomes-and-specialists
+      frameworks: digital-outcomes-and-specialists,digital-outcomes-and-specialists-2,digital-outcomes-and-specialists-3
+      default_mapping_name: briefs-digital-outcomes-and-specialists-2
+    staging:
+      default_index: briefs-digital-outcomes-and-specialists
+      frameworks: digital-outcomes-and-specialists,digital-outcomes-and-specialists-2,digital-outcomes-and-specialists-3
+      default_mapping_name: briefs-digital-outcomes-and-specialists-2
+    production:
+      default_index: briefs-digital-outcomes-and-specialists
+      frameworks: digital-outcomes-and-specialists,digital-outcomes-and-specialists-2,digital-outcomes-and-specialists-3
+      default_mapping_name: briefs-digital-outcomes-and-specialists-2
   services:
-    default_index: g-cloud-10
-    frameworks: g-cloud-10
-    default_mapping_name: services-g-cloud-10
+    preview:
+      default_index: g-cloud-10
+      frameworks: g-cloud-10
+      default_mapping_name: services-g-cloud-10
+    staging:
+      default_index: g-cloud-10
+      frameworks: g-cloud-10
+      default_mapping_name: services-g-cloud-10
+    production:
+      default_index: g-cloud-10
+      frameworks: g-cloud-10
+      default_mapping_name: services-g-cloud-10

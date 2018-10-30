@@ -2,27 +2,35 @@
 - job:
     name: "update-services-index-{{ environment }}"
     display-name: "Index services - {{ environment }}"
-    project-type: freestyle
+    project-type: pipeline
     description: "Update the {{ environment }} services index with services in the {{ environment }} database."
+    concurrent: false
     triggers:
       - timed: "H 2 * * *"
-    publishers:
-      - trigger-parameterized-builds:
-          - project: notify-slack
-            condition: UNSTABLE_OR_WORSE
-            predefined-parameters: |
-              USERNAME=index-services
-              JOB=Index services {{ environment }} :jenkins_parrot:
-              ICON=:alarm_clock:
-              STAGE={{ environment }}
-              STATUS=FAILED
-              URL=<${BUILD_URL}consoleFull|#${BUILD_NUMBER}>
-              CHANNEL=#dm-release
-    builders:
-      - trigger-builds:
-        - project: update-index-{{ environment }}
-          predefined-parameters: |
-            OBJECTS=services
-            INDEX={{ search_config['services'].default_index }}
-            FRAMEWORKS={{ search_config['services'].frameworks }}
+    pipeline:
+      script: |
+        node {
+          try {
+            stage('Update index') {
+              build job: "update-index-{{ environment }}",
+              parameters: [
+                string(name: 'OBJECTS', value: "services"),
+                string(name: 'INDEX', value: "{{ search_config['services'][environment].default_index }}"),
+                string(name: 'FRAMEWORKS', value: "{{ search_config['services'][environment].frameworks }}")
+              ]
+            }
+          } catch(err) {
+            currentBuild.result = 'FAILURE'
+            echo "Error: ${err}"
+            build job: 'notify-slack', parameters: [
+              string(name: 'USERNAME', value: "index-services"),
+              string(name: 'JOB', value: "Index services {{ environment }} :jenkins_parrot:"),
+              string(name: 'ICON', value: ":alarm_clock:"),
+              string(name: 'STAGE', value: "{{ environment }}"),
+              string(name: 'STATUS', value: "FAILED"),
+              string(name: 'URL', value: "<${BUILD_URL}consoleFull|#${BUILD_NUMBER}>"),
+              string(name: 'CHANNEL', value: "#dm-2ndline")
+            ]
+          }
+        }
 {% endfor %}
