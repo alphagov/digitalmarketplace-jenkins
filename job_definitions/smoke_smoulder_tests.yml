@@ -69,8 +69,7 @@
         try {
           stage('Prepare') {
             git url: 'git@github.com:alphagov/digitalmarketplace-functional-tests.git', branch: '${FT_BRANCH_NAME}', credentialsId: 'github_com_and_enterprise'
-            sh("rbenv install -s")
-            sh("gem install bundler --conservative")
+            sh('docker pull digitalmarketplace/functional-tests:latest')
           }
           stage('{{ test_type.stage_name }}') {
             sh('''
@@ -78,40 +77,27 @@
 
               export DM_API_DOMAIN="{{ app_urls[environment].data_api }}"
               export DM_API_ACCESS_TOKEN="$DM_DATA_API_TOKEN_{{ environment|upper }}"
-
               export DM_SEARCH_API_DOMAIN="{{ app_urls[environment].search_api }}"
               export DM_SEARCH_API_ACCESS_TOKEN="$DM_SEARCH_API_TOKEN_{{ environment|upper }}"
-
               export DM_ANTIVIRUS_API_DOMAIN="{{ app_urls[environment].antivirus_api }}"
-
               export DM_FRONTEND_DOMAIN="{{ app_urls[environment].www }}"
-
               export DM_SUPPLIER_USER_EMAIL="{{ vars.supplier_email }}"
               export DM_SUPPLIER_USER_PASSWORD="{{ vars.supplier_password }}"
               export DM_SUPPLIER_USER_SUPPLIER_ID="{{ vars.supplier_id }}"
-
               export DM_BUYER_USER_EMAIL="{{ vars.buyer_email }}"
               export DM_BUYER_USER_PASSWORD="{{ vars.buyer_password }}"
-
               export DM_ADMIN_USER_EMAIL="{{ vars.admin_email }}"
               export DM_ADMIN_USER_PASSWORD="{{ vars.admin_password }}"
-
               export DM_ADMIN_CCS_CATEGORY_USER_EMAIL="{{ vars.admin_ccs_category_email }}"
               export DM_ADMIN_CCS_CATEGORY_USER_PASSWORD="{{ vars.admin_ccs_category_password }}"
-
               export DM_ADMIN_CCS_SOURCING_USER_EMAIL="{{ vars.admin_ccs_sourcing_email }}"
               export DM_ADMIN_CCS_SOURCING_USER_PASSWORD="{{ vars.admin_ccs_sourcing_password }}"
-
               export DM_ADMIN_CCS_DATA_CONTROLLER_USER_EMAIL="{{ vars.admin_ccs_data_controller_email }}"
               export DM_ADMIN_CCS_DATA_CONTROLLER_USER_PASSWORD="{{ vars.admin_ccs_data_controller_password }}"
-
               export DM_ADMIN_MANAGER_USER_EMAIL="{{ vars.admin_manager_email }}"
               export DM_ADMIN_MANAGER_USER_PASSWORD="{{ vars.admin_manager_password }}"
-
               export DM_ADMIN_FRAMEWORK_MANAGER_USER_EMAIL="{{ vars.admin_framework_manager_email }}"
               export DM_ADMIN_FRAMEWORK_MANAGER_USER_PASSWORD="{{ vars.admin_framework_manager_password }}"
-
-
 {% if test_type["name"] == "smoulder" %}
               export DM_DOCUMENTS_BUCKET_NAME="digitalmarketplace-documents-{{ environment }}-{{ environment }}"
               export DM_NOTIFY_API_KEY="$NOTIFY_API_FUNCTIONAL_TESTS_KEY_{{ environment|upper }}"
@@ -120,10 +106,40 @@
               set -x # restore echo
 
               export DM_PAGINATION_LIMIT=100
-
               export DM_ENVIRONMENT={{ environment }}
 
-              {{ test_type.make_command }}
+              docker run --rm \
+                -v $(pwd):/app \
+                -e DM_API_DOMAIN \
+                -e DM_API_ACCESS_TOKEN \
+                -e DM_SEARCH_API_DOMAIN \
+                -e DM_SEARCH_API_ACCESS_TOKEN \
+                -e DM_ANTIVIRUS_API_DOMAIN \
+                -e DM_ASSETS_DOMAIN \
+                -e DM_FRONTEND_DOMAIN \
+                -e DM_NOTIFY_API_KEY \
+                -e DM_SUPPLIER_USER_EMAIL \
+                -e DM_SUPPLIER_USER_PASSWORD \
+                -e DM_SUPPLIER_USER_SUPPLIER_ID \
+                -e DM_BUYER_USER_EMAIL \
+                -e DM_BUYER_USER_PASSWORD \
+                -e DM_ADMIN_USER_EMAIL \
+                -e DM_ADMIN_USER_PASSWORD \
+                -e DM_ADMIN_CCS_CATEGORY_USER_EMAIL \
+                -e DM_ADMIN_CCS_CATEGORY_USER_PASSWORD \
+                -e DM_ADMIN_CCS_SOURCING_USER_EMAIL \
+                -e DM_ADMIN_CCS_SOURCING_USER_PASSWORD \
+                -e DM_ADMIN_CCS_DATA_CONTROLLER_USER_EMAIL \
+                -e DM_ADMIN_CCS_DATA_CONTROLLER_USER_PASSWORD \
+                -e DM_ADMIN_MANAGER_USER_EMAIL \
+                -e DM_ADMIN_MANAGER_USER_PASSWORD \
+                -e DM_ADMIN_FRAMEWORK_MANAGER_USER_EMAIL \
+                -e DM_ADMIN_FRAMEWORK_MANAGER_USER_PASSWORD \
+                -e DM_DOCUMENTS_BUCKET_NAME \
+                -e DM_NOTIFY_API_KEY \
+                -e DM_PAGINATION_LIMIT \
+                -e DM_ENVIRONMENT \
+                digitalmarketplace/functional-tests {{ test_type.make_command }}
             ''')
 
             if (currentBuild.rawBuild.getCause(hudson.model.Cause$UpstreamCause) != null) {
