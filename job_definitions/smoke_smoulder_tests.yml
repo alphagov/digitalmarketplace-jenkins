@@ -68,8 +68,8 @@
       node {
         try {
           stage('Prepare') {
-            git url: 'git@github.com:alphagov/digitalmarketplace-functional-tests.git', branch: '${FT_BRANCH_NAME}', credentialsId: 'github_com_and_enterprise'
-            sh('docker pull digitalmarketplace/functional-tests:latest')
+            git url: 'git@github.com:alphagov/digitalmarketplace-functional-tests.git', branch: 'ldeb-use-chrome-headless', credentialsId: 'github_com_and_enterprise'
+            sh("docker pull digitalmarketplace/functional-tests:latest")
           }
           stage('{{ test_type.stage_name }}') {
             sh('''
@@ -139,7 +139,7 @@
                 -e DM_NOTIFY_API_KEY \
                 -e DM_PAGINATION_LIMIT \
                 -e DM_ENVIRONMENT \
-                digitalmarketplace/functional-tests {{ test_type.make_command }}
+                digitalmarketplace/functional-tests bash -e -c "{{ test_type.make_command }}"
             ''')
 
             if (currentBuild.rawBuild.getCause(hudson.model.Cause$UpstreamCause) != null) {
