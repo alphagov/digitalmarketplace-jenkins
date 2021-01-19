@@ -14,7 +14,7 @@
       - string:
           name: FRAMEWORK_SLUG
           default: null
-          description: "Framework Slug e.g. 'digital-outcomes-and-specialists-5"
+          description: "Framework Slug e.g. 'digital-outcomes-and-specialists-5'"
       - string:
           name: SUPPLIER_IDS
           default: null
@@ -25,8 +25,8 @@
           description: "List notifications that would be sent without sending the emails"
     dsl: |
       stage('Clone agreements') {
-         dir('digitalmarketplace-agreements') {
-           git url: 'git@github.com:alphagov/digitalmarketplace-agreements.git', branch: 'master', credentialsId: 'github_com_and_enterprise', poll: true
+         dir('digitalmarketplace-frameworks') {
+           git url: 'git@github.com:alphagov/digitalmarketplace-frameworks.git', branch: 'master', credentialsId: 'github_com_and_enterprise', poll: true
          }
        }
     publishers:
@@ -51,5 +51,5 @@
             FLAGS="$FLAGS --dry-run"
           fi
 
-          docker run --rm -e DM_DATA_API_TOKEN_{{ environment|upper }} digitalmarketplace/scripts scripts/framework-applications/notify-successful-suppliers-for-framework.py '{{ environment }}' { FRAMEWORK_SLUG } $NOTIFY_API_TOKEN { NOTIFY_TEMPLATE_ID } $FLAGS
+          docker run --rm -e DM_DATA_API_TOKEN_{{ environment|upper }} digitalmarketplace/scripts scripts/framework-applications/notify-successful-suppliers-for-framework.py '{{ environment }}' ${FRAMEWORK_SLUG} $NOTIFY_API_TOKEN ${NOTIFY_TEMPLATE_ID} ../digitalmarketplace-frameworks $FLAGS
 {% endfor %}
