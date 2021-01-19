@@ -9,12 +9,16 @@
     parameters:
       - string:
           name: NOTIFY_TEMPLATE_ID
-          default: d308ea6a-f218-4191-bb84-9e5f73d46b68
+          default: "d308ea6a-f218-4191-bb84-9e5f73d46b68"
           description: "Notify Template ID"
       - string:
           name: FRAMEWORK_SLUG
           default: null
           description: "Framework Slug e.g. 'digital-outcomes-and-specialists-5"
+      - string:
+          name: SUPPLIER_IDS
+          default: null
+          description: "Comma-separated list of Supplier IDs to be emailed (e.g. '1234,5678')"
       - bool:
           name: DRY_RUN
           default: false
@@ -39,11 +43,7 @@
               CHANNEL=#dm-2ndline
     builders:
       - shell: |
-          if [ -n "$AWARDED_AT" ]; then
-            FLAGS="--awarded_at=$AWARDED_AT"
-          fi
-
-          if [ -n "$BRIEF_RESPONSE_IDS" ]; then
+          if [ -n "$SUPPLIER_IDS" ]; then
             FLAGS="$FLAGS --brief_response_ids=$BRIEF_RESPONSE_IDS"
           fi
 
@@ -51,5 +51,5 @@
             FLAGS="$FLAGS --dry-run"
           fi
 
-          docker run --rm -e DM_DATA_API_TOKEN_{{ environment|upper }} notify-successful-suppliers-for-framework.py '{{ environment }}' $NOTIFY_API_TOKEN {{ NOTIFY_TEMPLATE_ID }} $FLAGS --verbose
+          docker run --rm -e DM_DATA_API_TOKEN_{{ environment|upper }} digitalmarketplace/scripts scripts/framework-applications/notify-successful-suppliers-for-framework.py '{{ environment }}' { FRAMEWORK_SLUG } $NOTIFY_API_TOKEN { NOTIFY_TEMPLATE_ID } $FLAGS
 {% endfor %}
