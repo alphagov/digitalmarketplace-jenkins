@@ -2,7 +2,7 @@
 ---
 {% for environment in environments %}
 - job:
-    name: "notify-suppliers-of-intention-to-Award-(41)"
+    name: "notify-suppliers-of-intention-to-award-(41)"
     display-name: "Notify suppliers of Intention To Award (41)"
     project-type: pipeline
     description: "Send email notifications to supplier users if they have a completed application to a brief that has been awarded."
@@ -24,11 +24,28 @@
           default: false
           description: "List notifications that would be sent without sending the emails"
     dsl: |
-      stage('Clone frameworks') {
-         dir('digitalmarketplace-frameworks') {
-           git url: 'git@github.com:alphagov/digitalmarketplace-frameworks.git', branch: 'master', credentialsId: 'github_com_and_enterprise', poll: true
-         }
-       }
+      node {
+        try {
+          stage('Clone frameworks') {
+             dir('digitalmarketplace-frameworks') {
+               git url: 'git@github.com:alphagov/digitalmarketplace-frameworks.git', branch: 'master', credentialsId: 'github_com_and_enterprise', poll: true
+             }
+           }
+          stage('Run script') {
+           sh('''
+          if [ -n "$SUPPLIER_IDS" ]; then
+                      FLAGS="$FLAGS --supplier-id=$SUPPLIER_IDS"
+                    fi
+
+                    if [ "$DRY_RUN" = "true" ]; then
+                      FLAGS="$FLAGS --dry-run"
+                    fi
+
+                    docker run --rm -e DM_DATA_API_TOKEN_{{ environment|upper }} --mount type=bind,source="$PWD/../digitalmarketplace-frameworks",target=/digitalmarketplace-frameworks digitalmarketplace/scripts scripts/framework-applications/notify-successful-suppliers-for-framework.py '{{ environment }}' ${FRAMEWORK_SLUG} $NOTIFY_API_TOKEN ${NOTIFY_TEMPLATE_ID} /digitalmarketplace-frameworks $FLAGS
+          ''')
+          }
+      }
+    }
     publishers:
       - trigger-parameterized-builds:
           - project: notify-slack
