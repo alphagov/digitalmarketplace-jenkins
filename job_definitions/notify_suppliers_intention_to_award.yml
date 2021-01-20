@@ -44,13 +44,27 @@
                     docker run --rm -e DM_DATA_API_TOKEN_{{ environment|upper }} --mount type=bind,source="$PWD/../digitalmarketplace-frameworks",target=/digitalmarketplace-frameworks digitalmarketplace/scripts scripts/framework-applications/notify-successful-suppliers-for-framework.py '{{ environment }}' ${FRAMEWORK_SLUG} $NOTIFY_API_TOKEN ${NOTIFY_TEMPLATE_ID} /digitalmarketplace-frameworks $FLAGS
           ''')
           }
-      }
+        }
+    } catch(err) {
+                   currentBuild.result = 'FAILURE'
+                   echo "Error: ${err}"
+                   build job: 'notify-slack', parameters: [
+                     string(name: 'USERNAME', value: 'notify-suppliers-of-intention-to-award-(41)'),
+                     string(name: 'JOB', value: "Notify suppliers of Intention To Award (41)"),
+                     string(name: 'ICON', value: ':crystal_ball:'),
+                     string(name: 'STAGE', value: "{{ environment }}"),
+                     string(name: 'STATUS', value: 'FAILED'),
+                     string(name: 'CHANNEL', value: '#dm-2ndline'),
+                     text(name: 'URL', value: "<${BUILD_URL}consoleFull|#${BUILD_NUMBER}>")
+                   ]
+                 }
+             }
     publishers:
       - trigger-parameterized-builds:
           - project: notify-slack
             condition: UNSTABLE_OR_WORSE
             predefined-parameters: |
-              USERNAME=notify-suppliers-of-intention-to-Award-(41)
+              USERNAME=notify-suppliers-of-intention-to-award-(41)
               JOB=Notify suppliers of Intention To Award (41)
               ICON=:crystal_ball:
               STAGE={{ environment }}
