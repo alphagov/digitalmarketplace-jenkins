@@ -1,4 +1,4 @@
-{% set environments = ['production'] %}
+{% set environments = ['preview'] %}
 ---
 {% for environment in environments %}
 - job:
@@ -44,12 +44,12 @@
     builders:
       - shell: |
           if [ -n "$SUPPLIER_IDS" ]; then
-            FLAGS="$FLAGS --brief_response_ids=$BRIEF_RESPONSE_IDS"
+            FLAGS="$FLAGS --supplier-id=$SUPPLIER_IDS"
           fi
 
           if [ "$DRY_RUN" = "true" ]; then
             FLAGS="$FLAGS --dry-run"
           fi
 
-          docker run --rm -e DM_DATA_API_TOKEN_{{ environment|upper }} digitalmarketplace/scripts scripts/framework-applications/notify-successful-suppliers-for-framework.py '{{ environment }}' ${FRAMEWORK_SLUG} $NOTIFY_API_TOKEN ${NOTIFY_TEMPLATE_ID} ../digitalmarketplace-frameworks $FLAGS
+          docker run --rm -e DM_DATA_API_TOKEN_{{ environment|upper }} --mount type=bind,source="$PWD/../digitalmarketplace-frameworks",target=/digitalmarketplace-frameworks digitalmarketplace/scripts scripts/framework-applications/notify-successful-suppliers-for-framework.py '{{ environment }}' ${FRAMEWORK_SLUG} $NOTIFY_API_TOKEN ${NOTIFY_TEMPLATE_ID} /digitalmarketplace-frameworks $FLAGS
 {% endfor %}
