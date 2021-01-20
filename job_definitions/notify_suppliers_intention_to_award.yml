@@ -4,7 +4,7 @@
 - job:
     name: "notify-suppliers-of-intention-to-Award-(41)"
     display-name: "Notify suppliers of Intention To Award (41)"
-    project-type: freestyle
+    project-type: pipeline
     description: "Send email notifications to supplier users if they have a completed application to a brief that has been awarded."
     parameters:
       - string:
@@ -24,7 +24,7 @@
           default: false
           description: "List notifications that would be sent without sending the emails"
     dsl: |
-      stage('Clone agreements') {
+      stage('Clone frameworks') {
          dir('digitalmarketplace-frameworks') {
            git url: 'git@github.com:alphagov/digitalmarketplace-frameworks.git', branch: 'master', credentialsId: 'github_com_and_enterprise', poll: true
          }
