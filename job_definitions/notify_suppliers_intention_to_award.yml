@@ -59,27 +59,4 @@
                    ]
                  }
              }
-    publishers:
-      - trigger-parameterized-builds:
-          - project: notify-slack
-            condition: UNSTABLE_OR_WORSE
-            predefined-parameters: |
-              USERNAME=notify-suppliers-of-intention-to-award-(41)
-              JOB=Notify suppliers of Intention To Award (41)
-              ICON=:crystal_ball:
-              STAGE={{ environment }}
-              STATUS=FAILED
-              URL=<${BUILD_URL}consoleFull|#${BUILD_NUMBER}>
-              CHANNEL=#dm-2ndline
-    builders:
-      - shell: |
-          if [ -n "$SUPPLIER_IDS" ]; then
-            FLAGS="$FLAGS --supplier-id=$SUPPLIER_IDS"
-          fi
-
-          if [ "$DRY_RUN" = "true" ]; then
-            FLAGS="$FLAGS --dry-run"
-          fi
-
-          docker run --rm -e DM_DATA_API_TOKEN_{{ environment|upper }} --mount type=bind,source="$PWD/../digitalmarketplace-frameworks",target=/digitalmarketplace-frameworks digitalmarketplace/scripts scripts/framework-applications/notify-successful-suppliers-for-framework.py '{{ environment }}' ${FRAMEWORK_SLUG} $NOTIFY_API_TOKEN ${NOTIFY_TEMPLATE_ID} /digitalmarketplace-frameworks $FLAGS
 {% endfor %}
