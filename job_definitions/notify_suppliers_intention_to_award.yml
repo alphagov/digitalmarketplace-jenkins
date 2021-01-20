@@ -45,7 +45,6 @@
           ''')
           }
       }
-    }
     publishers:
       - trigger-parameterized-builds:
           - project: notify-slack
