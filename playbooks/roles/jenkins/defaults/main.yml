@@ -19,15 +19,18 @@ jobs: '*'
 jobs_disabled: false
 
 dist_tools:
+  - acl
   - bzip2
   - curl
   - fonts-liberation
   - git
   - gnupg2
+  - jq
   - libffi-dev
   - libpq-dev
   - libreadline-dev
   - libsqlite3-dev
+  - libssl-dev
   - libyaml-dev
   - make
   - ntp

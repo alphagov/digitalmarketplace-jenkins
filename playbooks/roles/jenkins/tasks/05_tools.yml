@@ -14,7 +14,7 @@
 
 - name: Add Postgres repo to sources list
   tags: [apt]
-  apt_repository: repo='deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main' state=present
+  apt_repository: repo='deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main' state=present
 
 - name: Install tools
   tags: [apt]
@@ -31,14 +31,12 @@
     update_cache: yes
     state: present
     name:
-      - jq=1.5+dfsg-*
-      - nodejs=8.*
-      - libssl1.0-dev
+      - nodejs=10.*
 
 - name: Install wkhtmltopdf with patched qt
   tags: [apt]
   apt:
-    deb: https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb
+    deb: https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.{{ ansible_distribution_release }}_amd64.deb
     state: present
 
 - name: Update Python 3 pip
@@ -49,7 +47,7 @@
 
 - name: Install AWS cli
   pip:
-    name: awscli==1.16.109
+    name: awscli==1.19.110
     state: present
 
 - name: Create AWS cli config folder

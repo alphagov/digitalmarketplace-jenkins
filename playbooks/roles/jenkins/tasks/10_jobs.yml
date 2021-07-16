@@ -12,8 +12,14 @@
 - name: Create /var/lib/jenkins/jenkins_jobs/definitions
   file: path=/var/lib/jenkins/jenkins_jobs/definitions state=directory recurse=yes owner=jenkins
 
+- name: Create jenkins job config directory
+  file:
+    path: /etc/jenkins_jobs
+    state: directory
+    owner: jenkins
+
 - name: Deploy jenkins_jobs.ini
-  template: dest=/var/lib/jenkins/jenkins_jobs/jenkins_jobs.ini src=jenkins_jobs.ini.j2 owner=jenkins
+  template: dest=/etc/jenkins_jobs/jenkins_jobs.ini src=jenkins_jobs.ini.j2 owner=jenkins
 
 - name: Clone digitalmarketplace-credentials repository
   tags: [credentials-repo]

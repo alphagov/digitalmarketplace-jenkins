@@ -41,11 +41,6 @@
   ignore_errors: yes
   when: not (first_time_install_test is failed)
 
-- name: Create Jenkins admin password hash
-  shell: echo -n "{{ jenkins_admin_password }}{ansible_jenkins}" | sha256sum - | awk '{ print $1; }'
-  when: not (first_time_install_test is failed)
-  register: jenkins_password_hash
-
 - name: Find Jenkins admin user directory
   when: not (first_time_install_test is failed)
   find:
@@ -59,7 +54,7 @@
   lineinfile:
     path: "{{ jenkins_user_admin.files[0].path }}/config.xml"
     regexp: '^(\s)*<passwordHash>(.*)'
-    line: '      <passwordHash>ansible_jenkins:{{ jenkins_password_hash.stdout }}</passwordHash>'
+    line: '      <passwordHash>{{ jenkins_admin_password_hash }}</passwordHash>'
     owner: "jenkins"
 
 - name: Forced restart to pick up any changes
